@@ -1,4 +1,8 @@
 import "dotenv/config";
+import "./db.js";
+import "./models/User";
+import { localsMiddleware } from "./middleware";
+
 import express from "express";
 import morgan from "morgan";
 import session from "express-session";
@@ -24,12 +28,12 @@ app.use(
     store: MongoStore.create({ mongoUrl: process.env.MongoUrl }),
   })
 );
-
+app.use(localsMiddleware);
 app.use("/user", userRouter);
 app.use("/", rootRouter);
 app.use("/video", videoRouter);
 
 const listenport = () => {
-  console.log(`주소는 http://localhost:${PORT}`);
+  console.log(`✅ 주소는 http://localhost:${PORT}`);
 };
 app.listen(PORT, listenport);

@@ -1,0 +1,13 @@
+ul 
+    li 
+        a(href="/") Home
+    if loggedIn
+        li
+            a(href="/edit") Edit-Profile
+        li 
+            a(href="/user/logout") Logout
+    else
+        li
+            a(href="/join") join
+        li
+            a(href="/login") login

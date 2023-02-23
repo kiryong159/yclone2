@@ -1,6 +1,9 @@
 extends base.pug
 
 block contents 
+    if ERRMSG
+        H1 #{ERRMSG}
     form(method="post")
         input(name="username" type="text" required placeholder="User Name")
         input(name="password" type="password" required placeholder="Password")
+        input(type="submit" value="Login")
