@@ -1,0 +1,12 @@
+extends base.pug
+
+block contents 
+    if ERRMSG
+        h1=ERRMSG
+    form(method="post" enctype="multipart/form-data")
+        label(for="avatar") Avatar
+        input(type="file" name="avatar" id="avatar" accept="image/*")
+        input(type="email" name="email" placeholder="email" value=loggedInuser.email )
+        input(type="text" name="name" placeholder="name" value=loggedInuser.name)
+        input(type="text" name="location" placeholder="location" value=loggedInuser.location)
+        input(type="submit" value="Edit Profile")

@@ -55,3 +55,37 @@ export const getlogout = (req, res) => {
   req.session.destroy();
   return res.redirect("/");
 };
+
+export const getUseredit = (req, res) => {
+  return res.render("userEdit", { pageTitle: "User Edit" });
+};
+
+export const postUseredit = async (req, res) => {
+  const {
+    params: { id },
+    body: { email, name, location },
+  } = req;
+  const { file } = req;
+
+  const avatarUrl = req.session.user.avatarUrl;
+  const emailCheck = await User.exists({ email });
+  if (req.session.user.email !== email) {
+    if (emailCheck) {
+      const ERRMSG = "사용중인 이메일 입니다";
+      return res.render("userEdit", { pageTitle: "User Edit", ERRMSG });
+    }
+  }
+
+  const updateUser = await User.findByIdAndUpdate(
+    id,
+    {
+      email,
+      name,
+      location,
+      avatarUrl: file ? file.path : avatarUrl,
+    },
+    { new: true }
+  );
+  req.session.user = updateUser;
+  return res.render("home", { pageTitle: "Home" });
+};

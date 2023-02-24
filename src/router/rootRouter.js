@@ -6,10 +6,11 @@ import {
   postLogin,
   postJoin,
 } from "../controller/userController";
+import { noreqLOGIN } from "../middleware";
 const rootRouter = express.Router();
 
 rootRouter.get("/", getHome);
-rootRouter.route("/login").get(getLogin).post(postLogin);
-rootRouter.route("/join").get(getJoin).post(postJoin);
+rootRouter.route("/login").all(noreqLOGIN).get(getLogin).post(postLogin);
+rootRouter.route("/join").all(noreqLOGIN).get(getJoin).post(postJoin);
 
 export default rootRouter;

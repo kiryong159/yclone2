@@ -4,6 +4,7 @@ import "./models/User";
 import { localsMiddleware } from "./middleware";
 
 import express from "express";
+
 import morgan from "morgan";
 import session from "express-session";
 import MongoStore from "connect-mongo";

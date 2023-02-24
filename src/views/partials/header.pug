@@ -3,7 +3,7 @@ ul
         a(href="/") Home
     if loggedIn
         li
-            a(href="/edit") Edit-Profile
+            a(href=`/user/${loggedInuser._id}/edit`) Edit-Profile
         li 
             a(href="/user/logout") Logout
     else
