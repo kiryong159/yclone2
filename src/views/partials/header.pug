@@ -6,6 +6,12 @@ ul
             a(href=`/user/${loggedInuser._id}/edit`) Edit-Profile
         li 
             a(href="/user/logout") Logout
+        li 
+            if loggedInuser.avatarUrl !== ""
+                a(href=`/user/${loggedInuser._id}`) 
+                    img(src="/"+`${loggedInuser.avatarUrl}` width=50,height=50)   
+            else
+                a(href=`/user/${loggedInuser._id}`) #{loggedInuser.name}의 프로필
     else
         li
             a(href="/join") join

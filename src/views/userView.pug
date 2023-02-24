@@ -1,0 +1,9 @@
+extends base.pug
+
+block contents 
+    div
+        if user.avatarUrl !== ""
+            img(src="/"+`${user.avatarUrl}` width=150 height=150)
+        else 
+            h1=user.name
+

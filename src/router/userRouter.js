@@ -3,12 +3,17 @@ import {
   getlogout,
   postUseredit,
   getUseredit,
+  getUserView,
+  getchangePW,
+  postchangePW,
 } from "../controller/userController";
 import { avatarUploadMiddleware, reqLOGIN } from "../middleware";
 
 const userRouter = express.Router();
 
 userRouter.get("/logout", reqLOGIN, getlogout);
+userRouter.route("/:id([0-9a-f]{24})").get(getUserView);
+userRouter.route("/changepw").all(reqLOGIN).get(getchangePW).post(postchangePW);
 userRouter
   .route("/:id([0-9a-f]{24})/edit")
   .all(reqLOGIN)

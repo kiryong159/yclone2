@@ -1,0 +1,11 @@
+extends base.pug
+
+block contents 
+    if ERRMSG 
+        h1=ERRMSG
+    div
+        form(method="post")
+            input(type="password" name="oldpassword" required placeholder="old password") 
+            input(type="password" name="newpassword" required placeholder="new password")
+            input(type="password" name="newpassword2" required placeholder="Check NEW password")
+            input(type="submit" value="변경하기")

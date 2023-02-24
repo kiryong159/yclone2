@@ -89,3 +89,44 @@ export const postUseredit = async (req, res) => {
   req.session.user = updateUser;
   return res.render("home", { pageTitle: "Home" });
 };
+
+export const getUserView = async (req, res) => {
+  const { id } = req.params;
+  const user = await User.findById(id);
+  if (!user) {
+    const ERRMSG = "없는 유저 입니다.";
+    return res.render("home", { pageTitle: "Home", ERRMSG });
+  }
+  return res.render("userView", { pageTitle: "User-View", user });
+};
+
+export const getchangePW = (req, res) => {
+  return res.render("changePW", { pageTitle: "changePW" });
+};
+export const postchangePW = async (req, res) => {
+  const id = req.session.user._id;
+  const { oldpassword, newpassword, newpassword2 } = req.body;
+  const user = await User.findById(id);
+  if (!user) {
+    const ERRMSG = "없는 유저 입니다.";
+    return res
+      .status(400)
+      .render("changePW", { pageTitle: "changePW", ERRMSG });
+  }
+  const checkPW = await bcrypt.compare(oldpassword, user.password);
+  if (!checkPW) {
+    const ERRMSG = "oldpassword가 틀렸습니다.";
+    return res
+      .status(400)
+      .render("changePW", { pageTitle: "changePW", ERRMSG });
+  }
+  if (newpassword !== newpassword2) {
+    const ERRMSG = "비밀번호/비밀번호 확인이 다릅니다.";
+    return res
+      .status(400)
+      .render("changePW", { pageTitle: "changePW", ERRMSG });
+  }
+  user.password = newpassword;
+  await user.save();
+  return res.status(200).redirect("/");
+};
