@@ -1,0 +1,11 @@
+extends base.pug
+
+block contents 
+    video(src=`/${video.fileUrl}` controls width=900 height=500)
+
+    div 
+        span 비디오 타이틀#{video.title}
+        span 비디오 주인 #{video.owner.name}  
+
+    if String(loggedInuser._id) === String(video.owner._id)
+        a(href=`/video/${video._id}/edit`) Edit Video

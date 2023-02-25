@@ -1,6 +1,12 @@
 extends base.pug
+include mixins/videoMIX.pug
 
 block contents
     if ERRMSG 
         h1=ERRMSG
-    h1 home
+    
+    div
+        each potato in videos.reverse()
+            +videoMIX(potato)
+        else 
+            span 비디오가 없습니다.    

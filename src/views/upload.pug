@@ -1,0 +1,14 @@
+extends base.pug
+
+block contents
+    div 
+        form(method="post"  enctype="multipart/form-data")
+            label(for="videoFile") videoFile
+            input(id="videoFile",name="videoFile",type="file",required accept="video/*")
+            label(for="thumbFile") thumbFile
+            input(id="thumbFile",name="thumbFile",type="file",required accept="image/*")
+            input(type="text",name="title",required,placeholder="title")
+            input(type="text",name="description",required,placeholder="description")
+            input(type="text",name="hashtag",required,placeholder=",로 구분해서 작성")
+            input(type="submit",value="업로드!")
+            

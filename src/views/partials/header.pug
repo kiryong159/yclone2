@@ -5,6 +5,8 @@ ul
         li
             a(href=`/user/${loggedInuser._id}/edit`) Edit-Profile
         li 
+            a(href=`/video/upload`) Upload Video
+        li 
             a(href="/user/logout") Logout
         li 
             if loggedInuser.avatarUrl !== ""
