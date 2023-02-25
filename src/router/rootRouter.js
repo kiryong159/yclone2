@@ -1,5 +1,5 @@
 import express from "express";
-import { getHome } from "../controller/videoController";
+import { getHome, search } from "../controller/videoController";
 import {
   getLogin,
   getJoin,
@@ -10,6 +10,7 @@ import { noreqLOGIN } from "../middleware";
 const rootRouter = express.Router();
 
 rootRouter.get("/", getHome);
+rootRouter.route("/search").get(search);
 rootRouter.route("/login").all(noreqLOGIN).get(getLogin).post(postLogin);
 rootRouter.route("/join").all(noreqLOGIN).get(getJoin).post(postJoin);
 

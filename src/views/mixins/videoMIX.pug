@@ -1,7 +1,7 @@
 mixin videoMIX(info)
     div
         a(href=`/video/${info._id}`)
-            img(src=`/${info.thumbUrl}`)
+            img(src=`/${info.thumbUrl}` width=250 height=150)
         
         span #{info.title}
         span #{info.meta.view}

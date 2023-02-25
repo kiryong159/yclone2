@@ -92,7 +92,7 @@ export const postUseredit = async (req, res) => {
 
 export const getUserView = async (req, res) => {
   const { id } = req.params;
-  const user = await User.findById(id);
+  const user = await User.findById(id).populate("videos");
   if (!user) {
     const ERRMSG = "없는 유저 입니다.";
     return res.render("home", { pageTitle: "Home", ERRMSG });

@@ -20,9 +20,7 @@ export const postUpload = async (req, res) => {
       title,
       description,
       createdAt: Date.now() + TIMEDIFF,
-      hashtag: hashtag
-        .split(",")
-        .map((word) => (word.startsWith("#") ? word : `#${word}`)),
+      hashtag: Video.FormatHashtag(hashtag),
       fileUrl: video[0].path,
       thumbUrl: thumb[0].path,
       owner: req.session.user._id,
@@ -40,16 +38,74 @@ export const postUpload = async (req, res) => {
 export const getVideoEdit = async (req, res) => {
   const { id } = req.params;
   const video = await Video.findById(id);
+  if (String(req.session.user._id) !== String(video.owner)) {
+    console.log(
+      `로그인 중인 아이디${String(req.session.user._id)}`,
+      `비디오 주인${String(video.owner)}`
+    );
+    return res.status(403).redirect("/");
+  }
   return res.render("videoEdit", { pageTitle: "Video Edit", video });
 };
 
-export const postVideoEdit = (req, res) => {
+export const postVideoEdit = async (req, res) => {
+  const { id } = req.params;
+  const { title, description, hashtag } = req.body;
+  const video = await Video.findById(id);
+  if (String(req.session.user._id) !== String(video.owner)) {
+    console.log(
+      `로그인 중인 아이디${String(req.session.user._id)}`,
+      `비디오 주인${String(video.owner)}`
+    );
+    return res.status(403).redirect("/");
+  }
+  await Video.findByIdAndUpdate(
+    id,
+    {
+      title,
+      description,
+      hashtag: Video.FormatHashtag(hashtag),
+    },
+    { new: true }
+  );
   return res.redirect("/");
 };
 
 export const watch = async (req, res) => {
   const { id } = req.params;
   const video = await Video.findById(id).populate("owner");
-
   return res.render("watch", { pageTitle: "Watch Video", video });
+};
+
+export const search = async (req, res) => {
+  const { keyword } = req.query;
+  let videos = [];
+  if (keyword) {
+    videos = await Video.find({
+      title: { $regex: new RegExp(keyword, "i") },
+    });
+  }
+  return res.render("search", { pageTitle: "Search", videos });
+};
+
+export const deleteVideo = async (req, res) => {
+  const { id } = req.params;
+  const video = await Video.findById(id);
+  const user = await User.findById(video.owner);
+  if (String(video.owner) !== String(req.session.user._id)) {
+    console.log(video.owner);
+    console.log(req.session.user._id);
+    console.log("비디오 주인이 아님");
+    return res.redirect("/");
+  }
+  for (var i = 0; i < user.videos.length; i++) {
+    if (String(user.videos[i]) === String(id)) {
+      user.videos.splice(i, 1);
+    } else {
+      console.log("false");
+    }
+  }
+  await user.save();
+  await Video.findByIdAndDelete(id);
+  return res.redirect("/");
 };

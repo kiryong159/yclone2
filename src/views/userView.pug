@@ -1,4 +1,5 @@
 extends base.pug
+include mixins/videoMIX.pug
 
 block contents 
     div
@@ -6,4 +7,7 @@ block contents
             img(src="/"+`${user.avatarUrl}` width=150 height=150)
         else 
             h1=user.name
+    div 
+        each potato in user.videos 
+            +videoMIX(potato)
 

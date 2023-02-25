@@ -6,11 +6,13 @@ import {
   getVideoEdit,
   postVideoEdit,
   watch,
+  deleteVideo,
 } from "../controller/videoController";
 
 const videoRouter = express.Router();
 
 videoRouter.get("/:id([0-9a-f]{24})", watch);
+videoRouter.all(reqLOGIN).get("/:id([0-9a-f]{24})/delete", deleteVideo);
 videoRouter
   .route("/:id([0-9a-f]{24})/edit")
   .all(reqLOGIN)
