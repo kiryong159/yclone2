@@ -104,7 +104,7 @@ export const getUserView = async (req, res) => {
 export const getchangePW = (req, res) => {
   if (req.session.user.socialOnly === true) {
     const ERRMSG = "소셜 로그인 유저는 비밀번호가 없습니다.";
-    return res.render("login", { pageTitle: "Login", ERRMSG });
+    return res.render("userEdit", { pageTitle: "User Edit", ERRMSG });
   }
   return res.render("changePW", { pageTitle: "changePW" });
 };
@@ -140,8 +140,8 @@ export const githubStart = (req, res) => {
   const baseUrl = "https://github.com/login/oauth/authorize";
   const config = {
     client_id: process.env.GIT_CLIENT_ID,
-    allow_signup: false,
     scope: "read:user user:email",
+    allow_signup: false,
   };
   const params = new URLSearchParams(config).toString();
   const finalUrl = `${baseUrl}?${params}`;
@@ -158,48 +158,104 @@ export const githubEnd = async (req, res) => {
   };
   const params = new URLSearchParams(config).toString();
   const finalUrl = `${baseUrl}?${params}`;
-
-  const data = await (
+  const tokenRequest = await (
     await fetch(finalUrl, {
       method: "post",
-      headers: { Accept: "application/json" },
+      headers: { Accept: " application/json" },
     })
   ).json();
-  console.log("데이타", data);
-  if ("access_token" in data) {
-    const { access_token } = data;
+  if ("access_token" in tokenRequest) {
+    const { access_token } = tokenRequest;
     const apiUrl = "https://api.github.com/user";
     const userRequest = await (
       await fetch(apiUrl, {
-        headers: {
-          Authorization: `Bearer ${access_token}`,
-        },
+        headers: { Authorization: `Bearer ${access_token}` },
       })
     ).json();
-    console.log("유저", userRequest);
     const emailRequest = await (
       await fetch(`${apiUrl}/emails`, {
         headers: { Authorization: `Bearer ${access_token}` },
       })
     ).json();
-    const verifiedEmail = emailRequest.find(
+    const verifiEmail = emailRequest.find(
       (email) => email.primary === true && email.verified === true
     );
-    console.log("이메일", verifiedEmail.email);
-
-    let emailCheck = await User.findOne({ email: verifiedEmail.email });
-    if (!emailCheck) {
-      emailCheck = await User.create({
-        username: userRequest.login,
-        avatarUrl: userRequest.avatar_url,
-        email: verifiedEmail.email,
+    let user = await User.findOne({ email: verifiEmail.email });
+    if (!user) {
+      user = await User.create({
+        email: verifiEmail.email,
         name: userRequest.name,
-        socialOnly: true,
         location: userRequest.location,
+        username: userRequest.login,
+        socialOnly: true,
+        avatarUrl: userRequest.avatar_url,
       });
     }
+    req.session.user = user;
     req.session.loggedIn = true;
-    req.session.user = emailCheck;
-    return res.redirect("/");
+  } else {
+    // 엑세스토큰 없을시
+    const ERRMSG = "엑세스 토큰이 없습니다.";
+    return res.render("login", { pageTitle: "Login", ERRMSG });
   }
+
+  res.redirect("/");
+};
+
+export const kakaoStart = (req, res) => {
+  const baseUrl = "https://kauth.kakao.com/oauth/authorize";
+  const redirectUri = "http://localhost:4000/user/kakaoEnd";
+  const config = {
+    client_id: process.env.KAKAO_REST_API,
+    redirect_uri: redirectUri,
+    response_type: "code",
+  };
+  const params = new URLSearchParams(config).toString();
+  const finalUrl = `${baseUrl}?${params}`;
+  return res.redirect(finalUrl);
+};
+export const kakaoEnd = async (req, res) => {
+  const { code } = req.query;
+  const baseUrl = "https://kauth.kakao.com/oauth/token";
+  const redirectUri = "http://localhost:4000/user/kakaoEnd";
+  const config = {
+    client_id: process.env.KAKAO_REST_API,
+    redirect_uri: redirectUri,
+    grant_type: "authorization_code",
+    code,
+  };
+  const params = new URLSearchParams(config).toString();
+  const finalUrl = `${baseUrl}?${params}`;
+  const tokenRequest = await (
+    await fetch(finalUrl, {
+      method: "post",
+    })
+  ).json();
+  if ("access_token" in tokenRequest) {
+    const { access_token } = tokenRequest;
+    const apiUrl = "https://kapi.kakao.com/v2/user/me";
+    const userRequest = await (
+      await fetch(apiUrl, {
+        method: "post",
+        headers: { Authorization: `Bearer ${access_token}` },
+      })
+    ).json();
+    let user = await User.findOne({ email: userRequest.kakao_account.email });
+    if (!user) {
+      user = await User.create({
+        username: userRequest.id,
+        email: userRequest.kakao_account.email,
+        avatarUrl: userRequest.properties.profile_image,
+        socialOnly: true,
+        name: userRequest.properties.nickname,
+      });
+    }
+    req.session.user = user;
+    req.session.loggedIn = true;
+  } else {
+    // 엑세스토큰 없을시
+    const ERRMSG = "엑세스 토큰이 없습니다.";
+    return res.render("login", { pageTitle: "Login", ERRMSG });
+  }
+  return res.redirect("/");
 };

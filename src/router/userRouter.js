@@ -8,6 +8,8 @@ import {
   postchangePW,
   githubStart,
   githubEnd,
+  kakaoStart,
+  kakaoEnd,
 } from "../controller/userController";
 import { avatarUploadMiddleware, noreqLOGIN, reqLOGIN } from "../middleware";
 
@@ -23,4 +25,6 @@ userRouter
   .post(avatarUploadMiddleware.single("avatar"), postUseredit);
 userRouter.all(noreqLOGIN).get("/githubStart", githubStart);
 userRouter.get("/githubEnd", githubEnd);
+userRouter.all(noreqLOGIN).get("/kakaoStart", kakaoStart);
+userRouter.get("/kakaoEnd", kakaoEnd);
 export default userRouter;
