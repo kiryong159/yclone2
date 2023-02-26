@@ -1,4 +1,5 @@
 import User from "../models/User";
+import fetch from "node-fetch";
 import bcrypt from "bcrypt";
 
 export const getLogin = (req, res) => {
@@ -101,6 +102,10 @@ export const getUserView = async (req, res) => {
 };
 
 export const getchangePW = (req, res) => {
+  if (req.session.user.socialOnly === true) {
+    const ERRMSG = "소셜 로그인 유저는 비밀번호가 없습니다.";
+    return res.render("login", { pageTitle: "Login", ERRMSG });
+  }
   return res.render("changePW", { pageTitle: "changePW" });
 };
 export const postchangePW = async (req, res) => {
@@ -129,4 +134,72 @@ export const postchangePW = async (req, res) => {
   user.password = newpassword;
   await user.save();
   return res.status(200).redirect("/");
+};
+
+export const githubStart = (req, res) => {
+  const baseUrl = "https://github.com/login/oauth/authorize";
+  const config = {
+    client_id: process.env.GIT_CLIENT_ID,
+    allow_signup: false,
+    scope: "read:user user:email",
+  };
+  const params = new URLSearchParams(config).toString();
+  const finalUrl = `${baseUrl}?${params}`;
+  return res.redirect(finalUrl);
+};
+
+export const githubEnd = async (req, res) => {
+  const { code } = req.query;
+  const baseUrl = "https://github.com/login/oauth/access_token";
+  const config = {
+    client_id: process.env.GIT_CLIENT_ID,
+    client_secret: process.env.GIT_SECRET,
+    code,
+  };
+  const params = new URLSearchParams(config).toString();
+  const finalUrl = `${baseUrl}?${params}`;
+
+  const data = await (
+    await fetch(finalUrl, {
+      method: "post",
+      headers: { Accept: "application/json" },
+    })
+  ).json();
+  console.log("데이타", data);
+  if ("access_token" in data) {
+    const { access_token } = data;
+    const apiUrl = "https://api.github.com/user";
+    const userRequest = await (
+      await fetch(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      })
+    ).json();
+    console.log("유저", userRequest);
+    const emailRequest = await (
+      await fetch(`${apiUrl}/emails`, {
+        headers: { Authorization: `Bearer ${access_token}` },
+      })
+    ).json();
+    const verifiedEmail = emailRequest.find(
+      (email) => email.primary === true && email.verified === true
+    );
+    console.log("이메일", verifiedEmail.email);
+
+    let emailCheck = await User.findOne({ email: verifiedEmail.email });
+    if (!emailCheck) {
+      emailCheck = await User.create({
+        username: userRequest.login,
+        avatarUrl: userRequest.avatar_url,
+        email: verifiedEmail.email,
+        name: userRequest.name,
+        socialOnly: true,
+        location: userRequest.location,
+      });
+    }
+    req.session.loggedIn = true;
+    req.session.user = emailCheck;
+    return res.redirect("/");
+  }
 };

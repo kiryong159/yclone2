@@ -6,8 +6,10 @@ import {
   getUserView,
   getchangePW,
   postchangePW,
+  githubStart,
+  githubEnd,
 } from "../controller/userController";
-import { avatarUploadMiddleware, reqLOGIN } from "../middleware";
+import { avatarUploadMiddleware, noreqLOGIN, reqLOGIN } from "../middleware";
 
 const userRouter = express.Router();
 
@@ -19,5 +21,6 @@ userRouter
   .all(reqLOGIN)
   .get(getUseredit)
   .post(avatarUploadMiddleware.single("avatar"), postUseredit);
-
+userRouter.all(noreqLOGIN).get("/githubStart", githubStart);
+userRouter.get("/githubEnd", githubEnd);
 export default userRouter;
