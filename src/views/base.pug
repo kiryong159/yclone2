@@ -5,9 +5,13 @@ html(lang="en")
         meta(http-equiv="X-UA-Compatible", content="IE=edge")
         meta(name="viewport", content="width=device-width, initial-scale=1.0")
         link(rel="stylesheet" href="https://unpkg.com/mvp.css@1.12/mvp.css" )
+        link(rel="stylesheet", href="/static/css/styles.css")
         title #{pageTitle} | Yclone2
     body
         include partials/header.pug
         main 
             block contents
             include partials/footer.pug
+    
+    block script 
+        script(src="/static/js/main.js") 
