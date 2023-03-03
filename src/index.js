@@ -13,6 +13,7 @@ import MongoStore from "connect-mongo";
 import userRouter from "./router/userRouter";
 import rootRouter from "./router/rootRouter";
 import videoRouter from "./router/videoRouter";
+import apiRouter from "./router/apiRouter.js";
 
 const PORT = 4000;
 const app = express();
@@ -35,6 +36,7 @@ app.use("/uploads", express.static("uploads"));
 app.use("/user", userRouter);
 app.use("/", rootRouter);
 app.use("/video", videoRouter);
+app.use("/api", apiRouter);
 
 const listenport = () => {
   console.log(`✅ 주소는 http://localhost:${PORT}`);

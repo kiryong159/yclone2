@@ -109,3 +109,5 @@ export const deleteVideo = async (req, res) => {
   await Video.findByIdAndDelete(id);
   return res.redirect("/");
 };
+
+export const Createcomment = (req, res) => {};
