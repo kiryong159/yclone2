@@ -4,8 +4,8 @@
   "description": "reload",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --exec babel-node src/index.js",
-    "assets": "webpack --config webpack.config.js"
+    "dev": "nodemon",
+    "assets": "webpack"
   },
   "repository": {
     "type": "git",
